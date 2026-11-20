@@ -35,13 +35,29 @@ function renderPressureChart(){
   const last=end<0?h.time.length:end;
   const first=Math.max(0,last-pressureHistoryDays*24);
   const times=h.time.slice(first,last),values=h.pressure_msl.slice(first,last).map(unitPressure);
-  drawLine("pressure-chart","pressure-hours",times,values,"#a18bfd",Math.max(0,times.length-1),true);
+  drawLine("pressure-chart","pressure-hours",times,values,"#a18bfd",Math.max(0,times.length-1),true);enablePressureInspection(times,values);
   text("pressure-range-label",pressureHistoryDays===1?"Previous 24 hours":pressureHistoryDays===3?"Previous 3 days":"Previous 7 days");
   document.querySelectorAll("[data-pressure-days]").forEach(b=>{
     const active=Number(b.dataset.pressureDays)===pressureHistoryDays;
     b.setAttribute("aria-pressed",String(active));
     b.classList.toggle("active",active);
   });
+}
+function enablePressureInspection(times,values){
+const svg=$("pressure-chart"),out=$("pressure-inspection"),good=values.map((v,i)=>({v,i})).filter(p=>Number.isFinite(p.v));
+if(!good.length)return;
+const lo=Math.min(...good.map(p=>p.v)),hi=Math.max(...good.map(p=>p.v)),pad=Math.max((hi-lo)*.2,.5),min=lo-pad,max=hi+pad;
+const x=i=>12+i*695/Math.max(1,values.length-1),y=v=>179-(v-min)/(max-min)*154;
+const ns="http://www.w3.org/2000/svg",make=(tag,attrs)=>{const e=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,String(v)));svg.append(e);return e;};
+const line=make("line",{stroke:"#fff","stroke-dasharray":"3 5",y1:25,y2:179,"pointer-events":"none"});
+const dot=make("circle",{r:6,fill:"#fff",stroke:"#a18bfd","stroke-width":3,"pointer-events":"none"});
+let selected=good[good.length-1].i;
+function show(index){const p=good.reduce((best,v)=>Math.abs(v.i-index)<Math.abs(best.i-index)?v:best,good[0]);selected=p.i;line.setAttribute("x1",x(p.i));line.setAttribute("x2",x(p.i));dot.setAttribute("cx",x(p.i));dot.setAttribute("cy",y(p.v));const day=new Date(times[p.i].slice(0,10)+"T12:00:00Z").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",timeZone:"UTC"});out.textContent=day+" "+fmtTime(times[p.i])+" · "+number(p.v,metric?1:3)+" "+pressureUnit()+" (model estimate)";}
+const overlay=make("rect",{x:12,y:25,width:695,height:154,fill:"transparent",style:"cursor:crosshair"});
+function point(e){const b=svg.getBoundingClientRect();if(b.width)show(Math.round(Math.max(0,Math.min(1,((e.clientX-b.left)/b.width*720-12)/695))*(values.length-1)));}
+overlay.addEventListener("pointermove",point);overlay.addEventListener("pointerdown",point);
+svg.onkeydown=e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();show(selected+(e.key==="ArrowRight"?1:-1));}else if(e.key==="Home"||e.key==="End"){e.preventDefault();show(e.key==="Home"?0:values.length-1);}};
+show(selected);
 }
 function drawLine(svgId,axisId,times,values,color,nowIdx,dateLabels=false){const svg=$(svgId);svg.replaceChildren();const good=values.filter(Number.isFinite);if(good.length<2){text(axisId,"Forecast unavailable");return;}const min=Math.min(...good),max=Math.max(...good),pad=Math.max((max-min)*.2,.5),low=min-pad,high=max+pad,w=720,h=215,left=12,right=707,top=25,bottom=179;const x=i=>left+i*(right-left)/Math.max(1,values.length-1),y=v=>bottom-(v-low)/(high-low)*(bottom-top);const node=(tag,attrs,contents)=>{const el=document.createElementNS("http://www.w3.org/2000/svg",tag);for(const[k,v]of Object.entries(attrs))el.setAttribute(k,String(v));if(contents!=null)el.textContent=contents;svg.appendChild(el);return el;};for(let j=0;j<4;j++){const py=top+j*(bottom-top)/3;node("line",{x1:left,x2:right,y1:py,y2:py,stroke:"#324660","stroke-dasharray":"4 6"});}let segment=[];function flush(){if(segment.length>1){node("polyline",{points:segment.map(([a,b])=>`${a},${b}`).join(" "),fill:"none",stroke:color,"stroke-width":3,"stroke-linecap":"round","stroke-linejoin":"round"});}segment=[];}values.forEach((v,j)=>{if(Number.isFinite(v))segment.push([x(j),y(v)]);else flush();});flush();if(Number.isFinite(values[nowIdx])){const xx=x(nowIdx),yy=y(values[nowIdx]);node("line",{x1:xx,x2:xx,y1:top,y2:bottom,stroke:color,"stroke-dasharray":"4 5",opacity:.55});node("circle",{cx:xx,cy:yy,r:5,fill:color,stroke:"#15243b","stroke-width":3});}const display=number(values[nowIdx],svgId==="pressure-chart"?(metric?0:2):0);node("text",{x:Math.min(x(nowIdx)+9,650),y:Math.max(15,y(values[nowIdx])-12),fill:color,"font-size":17,"font-weight":700},display);const labels=[0,Math.floor((times.length-1)/3),Math.floor(2*(times.length-1)/3),times.length-1].map(z=>dateLabels&&times[z]?new Date(times[z]+"Z").toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"})+" "+fmtTime(times[z]):fmtTime(times[z]));$(axisId).replaceChildren(...labels.map(s=>{const el=document.createElement("span");el.textContent=s;return el;}));}
 function renderDaily(){const grid=$("daily-grid");grid.replaceChildren();forecast.daily.time.filter(day=>day>=forecast.current.time.slice(0,10)).slice(0,7).forEach((day,dayIndex)=>{const d=forecast.daily,i=d.time.indexOf(day),el=document.createElement("article");el.className="card day-card";const weekday=dayIndex===0?"Today":new Date(day+"T12:00:00").toLocaleDateString("en-US",{weekday:"short"});const desc=condition(d.weather_code[i]);const parts=[["div","day",weekday],["div","day-icon",desc.icon],["div","temps",`${number(unitTemp(d.temperature_2m_max[i]))}° / ${number(unitTemp(d.temperature_2m_min[i]))}°`],["div","rain",`☂ ${number(d.precipitation_probability_max[i])}% rain`]];for(const[tag,cls,value]of parts){const n=document.createElement(tag);n.className=cls;n.textContent=value;el.append(n);}el.title=desc.label;grid.append(el);});}
