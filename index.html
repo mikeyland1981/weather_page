@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080f20">
+  <meta name="description" content="A free, beautifully simple local weather dashboard with barometric pressure trends.">
+  <title>Weather Station · Local Weather Dashboard</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Weather Station home"><span class="brand-icon">◈</span><span>WEATHER<span class="brand-light">STATION</span></span></a>
+    <div class="top-actions">
+      <span class="live"><span class="live-dot"></span> LIVE FORECAST</span>
+      <button id="units-btn" class="button" type="button" aria-label="Switch units">°F / mph</button>
+      <button id="refresh-btn" class="button icon-btn" type="button" title="Refresh weather" aria-label="Refresh weather">↻</button>
+    </div>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">YOUR LOCAL WEATHER, AT A GLANCE</p><h1>Weather <span>overview.</span></h1><p class="subtitle">Real-time conditions and detailed forecasts, without subscriptions.</p></div>
+      <form id="location-form" class="search" role="search">
+        <label for="location-input" class="sr-only">Search for a city</label>
+        <input id="location-input" type="search" placeholder="Search a city…" autocomplete="off" minlength="2" required>
+        <button type="submit">Search <span aria-hidden="true">→</span></button>
+        <div id="search-results" class="search-results" hidden></div>
+      </form>
+    </section>
+    <div id="status" class="status" role="status" aria-live="polite">Loading Lancaster, Kentucky weather…</div>
+    <section class="hero card" aria-labelledby="place-name">
+      <div class="hero-main">
+        <div class="hero-location"><span class="pin">⌖</span><span id="place-name">Lancaster, Kentucky</span></div>
+        <div class="hero-condition"><div><div class="temperature"><span id="temperature">--</span><span class="degree">°</span></div><p id="condition-label" class="condition-label">Loading weather…</p><p id="feels-like" class="muted">Feels like --°</p></div><div id="weather-icon" class="weather-icon" aria-hidden="true">☀</div></div>
+        <div class="hero-footer"><span id="local-time">Local time --:--</span><span id="updated-at">Updated --</span></div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-mini"><span>Today's high / low</span><strong id="high-low">--° / --°</strong></div>
+        <div class="hero-mini"><span>Chance of rain</span><strong id="rain-chance">--%</strong></div>
+        <div class="hero-mini"><span>Sunrise / sunset</span><strong id="sun-times">-- / --</strong></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-title"><div><p class="eyebrow">ATMOSPHERIC CONDITIONS</p><h2>Current readings</h2></div><span class="section-note">Forecast model data · not a physical station</span></div>
+      <div class="metric-grid">
+        <article class="card metric pressure-card"><div class="metric-top"><span>Barometric pressure</span><span class="metric-symbol">◉</span></div><div class="metric-value" id="pressure">-- <small>inHg</small></div><div id="pressure-trend" class="metric-bottom">Trend unavailable</div><div class="pressure-meter"><div id="pressure-meter-fill"></div></div><div class="meter-labels"><span>Low</span><span>Normal</span><span>High</span></div></article>
+        <article class="card metric"><div class="metric-top"><span>Humidity</span><span class="metric-symbol">◍</span></div><div class="metric-value" id="humidity">--<small>%</small></div><p class="metric-bottom">Relative humidity</p></article>
+        <article class="card metric"><div class="metric-top"><span>Wind speed</span><span class="metric-symbol">≋</span></div><div class="metric-value" id="wind">--<small>mph</small></div><p class="metric-bottom" id="wind-extra">Direction and gusts</p></article>
+        <article class="card metric"><div class="metric-top"><span>UV index</span><span class="metric-symbol">☀</span></div><div class="metric-value" id="uv">--</div><p class="metric-bottom" id="uv-label">Current UV exposure</p></article>
+        <article class="card metric"><div class="metric-top"><span>Dew point</span><span class="metric-symbol">♧</span></div><div class="metric-value" id="dew">--<small>°F</small></div><p class="metric-bottom">Moisture in the air</p></article>
+        <article class="card metric"><div class="metric-top"><span>Visibility</span><span class="metric-symbol">◎</span></div><div class="metric-value" id="visibility">--<small>mi</small></div><p class="metric-bottom" id="cloud-cover">Cloud cover --%</p></article>
+      </div>
+    </section>
+    <section class="chart-grid section">
+      <article class="card chart-panel"><div class="panel-head"><div><p class="eyebrow">NEXT 24 HOURS</p><h2>Temperature forecast</h2></div><span class="panel-tag" id="temp-chart-unit">°F</span></div><div class="chart-scroll"><svg id="temp-chart" class="line-chart" role="img" aria-label="Temperature forecast for the next 24 hours" viewBox="0 0 720 215" preserveAspectRatio="none"></svg></div><div id="temp-hours" class="chart-axis"></div></article>
+      <article class="card chart-panel"><div class="panel-head"><div><p class="eyebrow">BAROMETRIC PRESSURE HISTORY</p><h2>Pressure trend</h2></div><span class="panel-tag" id="pressure-chart-unit">inHg</span></div><div class="pressure-controls" role="group" aria-label="Pressure history range"><button type="button" data-pressure-days="1" aria-pressed="true" class="active">24 hours</button><button type="button" data-pressure-days="3" aria-pressed="false">3 days</button><button type="button" data-pressure-days="7" aria-pressed="false">7 days</button></div><p class="pressure-range-label" id="pressure-range-label">Previous 24 hours</p><div class="chart-scroll"><svg id="pressure-chart" class="line-chart" role="img" tabindex="0" aria-describedby="pressure-inspection" aria-label="Barometric pressure history and forecast" viewBox="0 0 720 215" preserveAspectRatio="none"></svg></div><div id="pressure-hours" class="chart-axis"></div><p id="pressure-inspection" class="pressure-inspection" role="status" aria-live="polite">Select a pressure point to inspect it. Use arrow keys when chart is focused.</p><p class="fine-print">Historical pressure values are model estimates, not observed station measurements. Select a time range above to compare trends.</p></article>
+    </section>
+    <section class="section"><div class="section-title"><div><p class="eyebrow">PLAN AHEAD</p><h2>7-day forecast</h2></div></div><div id="daily-grid" class="daily-grid"></div></section>
+    <section class="card details-panel section"><div class="section-title"><div><p class="eyebrow">MORE DETAILS</p><h2>Extra weather data</h2></div></div><div class="detail-grid"><div><span>Precipitation now</span><strong id="precipitation">--</strong></div><div><span>Surface pressure</span><strong id="surface-pressure">--</strong></div><div><span>Wind gusts</span><strong id="gusts">--</strong></div><div><span>Forecast timezone</span><strong id="timezone">--</strong></div></div></section>
+  </main>
+  <footer><span>Weather Station · Built with free weather data</span><span>Forecast &amp; geocoding: <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · <a href="https://open-meteo.com/en/terms" target="_blank" rel="noopener noreferrer">Terms</a></span></footer>
+</div>
+</body>
+</html>
