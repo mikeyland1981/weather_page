@@ -4,7 +4,7 @@ Responsive local weather dashboard with barometric pressure trends and a seven-d
 
 ## Features
 - Current temperature, feels-like, sky conditions, daily highs/lows, sunrise and sunset
-- Barometric pressure (inHg or hPa), three-hour trend, and a chart showing all of yesterday’s hourly pressure estimates, today so far, and the next 24 hours
+- Barometric pressure (inHg or hPa), three-hour trend, and selectable 24-hour, 3-day, and 7-day historical pressure charts using modeled hourly estimates
 - Humidity, wind, gusts, UV index, dew point, visibility, precipitation, cloud cover and surface pressure
 - Next-24-hour temperature chart and seven-day forecast
 - City search, location and unit preferences saved in the browser
