@@ -7,7 +7,8 @@ const GEOCODE_URL="https://geocoding-api.open-meteo.com/v1/search";
 const STORAGE_KEY="weather-station-location";
 const UNITS_KEY="weather-station-metric";
 const $=id=>document.getElementById(id);
-let pressureHistoryDays=1;\nlet locationValue=readLocation(), metric=localStorage.getItem(UNITS_KEY)==="true", forecast=null, requestId=0;
+let pressureHistoryDays=1;
+let locationValue=readLocation(), metric=localStorage.getItem(UNITS_KEY)==="true", forecast=null, requestId=0;
 function readLocation(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));if(saved&&Number.isFinite(saved.latitude)&&Number.isFinite(saved.longitude)&&typeof saved.name==="string")return saved;}catch{}return DEFAULT_LOCATION;}
 function text(id,value){$(id).textContent=value;}
 function number(value,digits=0){return typeof value==="number"&&Number.isFinite(value)?value.toFixed(digits):"--";}
@@ -65,4 +66,5 @@ $("location-form").addEventListener("submit",async e=>{e.preventDefault();const 
 document.addEventListener("click",e=>{if(!e.target.closest(".search"))$("search-results").hidden=true;});
 $("refresh-btn").addEventListener("click",()=>loadWeather());
 $("units-btn").addEventListener("click",()=>{metric=!metric;try{localStorage.setItem(UNITS_KEY,String(metric));}catch{}render();});
-document.querySelectorAll("[data-pressure-days]").forEach(button=>button.addEventListener("click",()=>{pressureHistoryDays=Number(button.dataset.pressureDays);renderPressureChart();}));\nloadWeather();
+document.querySelectorAll("[data-pressure-days]").forEach(button=>button.addEventListener("click",()=>{pressureHistoryDays=Number(button.dataset.pressureDays);renderPressureChart();}));
+loadWeather();
