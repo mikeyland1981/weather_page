@@ -34,3 +34,5 @@ https://mikeyland1981.github.io/weather_page/
 - `app.js`: API calls, charts, unit conversion, rendering and city search
 
 Weather data courtesy of [Open-Meteo](https://open-meteo.com/).
+## Pressure chart interaction
+Hover, touch, or drag across the chart to inspect the nearest hourly modeled pressure and local time. Keyboard users can focus the chart and use Left/Right arrow keys, Home, and End. Readings follow the selected inHg/hPa units.
