@@ -8,6 +8,7 @@
   <title>Weather Station · Local Weather Dashboard</title>
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./app.js"></script>
+  <script defer src="./sensitivity.js"></script>
 </head>
 <body>
 <div class="shell">
@@ -42,6 +43,18 @@
         <div class="hero-mini"><span>Sunrise / sunset</span><strong id="sun-times">-- / --</strong></div>
       </div>
     </section>
+    <section class="card details-panel section sensitivity-panel" aria-labelledby="sensitivity-title">
+<p class="eyebrow">FIBROMYALGIA WEATHER SENSITIVITY · EXPERIMENTAL</p><h2 id="sensitivity-title">Weather sensitivity outlook</h2>
+<p class="muted">Weather may affect symptoms differently for each person. This is a weather-condition indicator, not a validated pain forecast or medical advice.</p>
+<h3 id="sensitivity-level" aria-live="polite">Waiting for weather data…</h3>
+<ul id="sensitivity-factors"></ul>
+<details><summary>Personal weather sensitivity settings and thresholds</summary><p class="muted">These illustrative thresholds are not clinically validated. Choose which conditions you want to monitor.</p>
+<div class="sensitivity-settings"><label><input type="checkbox" id="sensitivity-low"> Pressure below 1005 hPa (29.68 inHg)</label><label><input type="checkbox" id="sensitivity-change"> Pressure change of 6 hPa or more over 24 hours</label><label><input type="checkbox" id="sensitivity-humidity"> Humidity at least 80%</label><label><input type="checkbox" id="sensitivity-temperature"> Temperature change of 6°C (10.8°F) or more over 24 hours</label></div></details>
+<h3>Seven-day outlook</h3><p class="muted">Highest number of flagged conditions during each local day.</p><div id="sensitivity-days" class="sensitivity-days"></div>
+<details><summary>Next 24 hours</summary><div id="sensitivity-hours" class="sensitivity-hours"></div></details>
+<h3>Personal pain journal</h3><p class="muted">Optional: record your pain and compare it with weather over time. Entries stay in this browser, are not encrypted, and may be visible to other people using this browser profile. No entries are sent to a server.</p>
+<form id="pain-form" class="pain-form"><label for="pain-score">Today's pain (0–10)</label><input id="pain-score" type="number" min="0" max="10" step="1" required placeholder="0–10"><button class="button" type="submit">Save today's entry</button><button class="button" id="pain-clear" type="button">Clear journal</button></form><p id="pain-status" role="status"></p><p id="pain-correlation" class="muted"></p><details><summary>Saved entries</summary><ul id="pain-entries"></ul></details>
+</section>
     <section class="section">
       <div class="section-title"><div><p class="eyebrow">ATMOSPHERIC CONDITIONS</p><h2>Current readings</h2></div><span class="section-note">Forecast model data · not a physical station</span></div>
       <div class="metric-grid">
